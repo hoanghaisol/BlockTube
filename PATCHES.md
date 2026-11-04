@@ -30,3 +30,11 @@ Stored data format is unchanged (`channelId,channelName` per entry), so existing
 | `common/src/ststable/res/values/update_urls.xml` | `https://github.com/hoanghaisol/BlockTube/releases/download/latest/blocktube_stable.json` | Updater reads this repo's releases. |
 | `smarttubetv/google-services.json` | Removed | Upstream's Firebase project; has no client for our package and build fails. Crashlytics plugin is skipped when the file is absent. |
 | `.gitignore` | `*.jks`, `*.keystore`, `keystore.properties`, `.env` | Never commit signing secrets. |
+
+## Release tooling (new files only)
+
+| File | Purpose |
+|---|---|
+| `.github/workflows/release.yml` | Manual release: build signed stable APKs, publish `v<versionName>` with SHA-256, update `blocktube_stable.json` in release `latest`. |
+| `scripts/make_update_manifest.py` | Build/merge the updater manifest; refuses a versionCode that is not newer. |
+| `.github/README.md` | Fork README (GitHub shows it instead of the upstream root README). |

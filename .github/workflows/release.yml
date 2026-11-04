@@ -1,0 +1,135 @@
+name: Release BlockTube
+
+# Builds the signed stable APKs, publishes them as release v<versionName>,
+# then updates blocktube_stable.json in the "latest" release, which is the
+# URL the in-app updater reads (common/src/ststable/res/values/update_urls.xml).
+#
+# Required secrets:
+#   SIGNING_KEY         base64 of blocktube.jks
+#   KEY_STORE_PASSWORD  keystore password
+#   ALIAS               key alias (blocktube)
+#   KEY_PASSWORD        key password (same as keystore password for PKCS12)
+
+on:
+  workflow_dispatch:
+    inputs:
+      changelog:
+        description: "Changelog entries, separated by ';'"
+        required: false
+        default: ""
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MANIFEST: blocktube_stable.json
+      MANIFEST_TAG: latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          submodules: recursive
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Configure signing
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          ALIAS: ${{ secrets.ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$SIGNING_KEY" ]; then
+            echo "::error::SIGNING_KEY secret is missing"; exit 1
+          fi
+          echo "$SIGNING_KEY" | base64 --decode > "$RUNNER_TEMP/key.jks"
+          {
+            echo "storeFile=$RUNNER_TEMP/key.jks"
+            echo "storePassword=$KEY_STORE_PASSWORD"
+            echo "keyAlias=$ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > keystore.properties
+
+      - name: Build release APKs
+        run: |
+          chmod +x gradlew
+          ./gradlew :smarttubetv:assembleStstableRelease
+
+      - name: Read version
+        id: version
+        run: |
+          APK_DIR=smarttubetv/build/outputs/apk/ststable/release
+          NAME=$(jq -r '.elements[0].versionName' "$APK_DIR/output-metadata.json")
+          CODE=$(jq -r '.elements[0].versionCode' "$APK_DIR/output-metadata.json")
+          echo "apk_dir=$APK_DIR" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "tag=v$NAME" >> "$GITHUB_OUTPUT"
+          if gh release view "v$NAME" > /dev/null 2>&1; then
+            echo "::error::Release v$NAME already exists. Bump filterPatch in smarttubetv/build.gradle."; exit 1
+          fi
+
+      - name: Checksums
+        working-directory: ${{ steps.version.outputs.apk_dir }}
+        run: sha256sum *.apk > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      - name: Build update manifest
+        env:
+          CHANGELOG: ${{ github.event.inputs.changelog }}
+        run: |
+          gh release download "$MANIFEST_TAG" --pattern "$MANIFEST" --dir "$RUNNER_TEMP/prev" 2>/dev/null || echo "No previous manifest"
+          python3 scripts/make_update_manifest.py \
+            --previous "$RUNNER_TEMP/prev/$MANIFEST" \
+            --out "$MANIFEST" \
+            --apk-dir "${{ steps.version.outputs.apk_dir }}" \
+            --base-url "https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}" \
+            --version-name "${{ steps.version.outputs.name }}" \
+            --version-code "${{ steps.version.outputs.code }}" \
+            --changelog "$CHANGELOG"
+          cat "$MANIFEST"
+
+      - name: Publish versioned release
+        env:
+          CHANGELOG: ${{ github.event.inputs.changelog }}
+        run: |
+          DIR="${{ steps.version.outputs.apk_dir }}"
+          {
+            echo "Unofficial fork of yuliskov/SmartTube. Not affiliated with Google or YouTube."
+            echo
+            echo "$CHANGELOG" | tr ';' '\n' | sed '/^[[:space:]]*$/d; s/^[[:space:]]*/- /'
+            echo
+            echo '```'
+            cat "$DIR/SHA256SUMS.txt"
+            echo '```'
+          } > "$RUNNER_TEMP/notes.md"
+          gh release create "${{ steps.version.outputs.tag }}" "$DIR"/*.apk "$DIR/SHA256SUMS.txt" \
+            --target "$GITHUB_SHA" \
+            --title "BlockTube ${{ steps.version.outputs.name }}" \
+            --notes-file "$RUNNER_TEMP/notes.md" \
+            --latest
+
+      - name: Update manifest release
+        run: |
+          if ! gh release view "$MANIFEST_TAG" > /dev/null 2>&1; then
+            gh release create "$MANIFEST_TAG" --target "$GITHUB_SHA" --prerelease --latest=false \
+              --title "Update manifest" --notes "Read by the in-app updater. Do not delete."
+          fi
+          gh release upload "$MANIFEST_TAG" "$MANIFEST" --clobber
+
+      - name: Remove signing files
+        if: always()
+        run: rm -f keystore.properties "$RUNNER_TEMP/key.jks"
