@@ -849,28 +849,52 @@ public final class Video {
         }
 
         MediaItem nextVideo = metadata.getNextVideo();
+        BlockedChannelData blockedChannelData = BlockedChannelData.instance(GlobalPreferences.context());
+
+        // Autoplay: don't play next video from the blocked channel
+        if (nextVideo != null && isBlocked(nextVideo, blockedChannelData)) {
+            nextVideo = findFirstAllowed(metadata.getSuggestions(), 0, blockedChannelData);
+        }
 
         // BUGFIX: player closed after last video from the remote queue
         if (nextVideo == null && isRemote) {
-            List<MediaGroup> suggestions = metadata.getSuggestions();
-
-            if (suggestions != null && suggestions.size() > 1) {
-                List<MediaItem> mediaItems = suggestions.get(1).getMediaItems();
-                BlockedChannelData blockedChannelData = BlockedChannelData.instance(GlobalPreferences.context());
-                nextVideo = Helpers.findFirst(mediaItems,
-                        item -> {
-                            if (blockedChannelData.isEmpty()) {
-                                return item.getVideoId() != null;
-                            }
-
-                            Video video = Video.from(item);
-                            return video != null
-                                    && video.videoId != null && !blockedChannelData.containsChannel(video.channelId, video.getAuthor());
-                        });
-            }
+            nextVideo = findFirstAllowed(metadata.getSuggestions(), 1, blockedChannelData);
         }
 
         return nextVideo;
+    }
+
+    private MediaItem findFirstAllowed(List<MediaGroup> suggestions, int fromGroup, BlockedChannelData blockedChannelData) {
+        if (suggestions == null) {
+            return null;
+        }
+
+        for (int i = fromGroup; i < suggestions.size(); i++) {
+            MediaGroup group = suggestions.get(i);
+            List<MediaItem> mediaItems = group != null ? group.getMediaItems() : null;
+
+            if (mediaItems == null) {
+                continue;
+            }
+
+            MediaItem result = Helpers.findFirst(mediaItems,
+                    item -> item.getVideoId() != null && !item.getVideoId().equals(videoId) && !isBlocked(item, blockedChannelData));
+
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean isBlocked(MediaItem item, BlockedChannelData blockedChannelData) {
+        if (blockedChannelData.isEmpty()) {
+            return false;
+        }
+
+        Video video = Video.from(item);
+        return video != null && blockedChannelData.containsChannel(video.channelId, video.getAuthor());
     }
 
     public void markFullyViewed() {
