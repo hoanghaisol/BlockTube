@@ -33,6 +33,8 @@ import com.liskovsoft.smartyoutubetv2.common.prefs.BlockedChannelData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.MainUIData;
 import com.liskovsoft.smartyoutubetv2.common.utils.AppDialogUtil;
+import com.liskovsoft.smartyoutubetv2.common.utils.SimpleEditDialog;
+import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -466,20 +468,46 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
 
         mDialogPresenter.appendSingleButton(
                 UiOptionItem.from(buttonText, optionItem -> {
-                    if (isBlocked) {
-                        blockedChannelData.removeChannel(channelId, channelName);
-                        MessageHelpers.showMessage(getContext(), R.string.channel_unblocked);
-                    } else {
-                        blockedChannelData.addChannel(channelId, channelName);
-                        MessageHelpers.showMessage(getContext(), R.string.channel_blocked);
-                    }
+                    Video video = mVideo;
+                    VideoMenuCallback callback = mCallback;
 
-                    if (mCallback != null) {
-                        // Block: remove every card of the channel, not only the selected one
-                        mCallback.onItemAction(mVideo, isBlocked ? VideoMenuCallback.ACTION_REMOVE : VideoMenuCallback.ACTION_REMOVE_AUTHOR);
-                    }
+                    Runnable applyChange = () -> {
+                        if (isBlocked) {
+                            blockedChannelData.removeChannel(channelId, channelName);
+                            MessageHelpers.showMessage(getContext(), R.string.channel_unblocked);
+                        } else {
+                            blockedChannelData.addChannel(channelId, channelName);
+                            MessageHelpers.showMessage(getContext(), R.string.channel_blocked);
+                        }
+
+                        if (callback != null) {
+                            // Block: remove every card of the channel, not only the selected one
+                            callback.onItemAction(video, isBlocked ? VideoMenuCallback.ACTION_REMOVE : VideoMenuCallback.ACTION_REMOVE_AUTHOR);
+                        }
+                        showHideBlockedChannelsSection(blockedChannelData);
+                    };
+
                     mDialogPresenter.closeDialog();
-                    showHideBlockedChannelsSection(blockedChannelData);
+
+                    // Unblock is protected by the settings password (if set)
+                    String password = GeneralData.instance(getContext()).getSettingsPassword();
+
+                    if (isBlocked && blockedChannelData.isLocked()) {
+                        SimpleEditDialog.showPassword(
+                                getContext(),
+                                getContext().getString(R.string.enter_settings_password),
+                                null,
+                                newValue -> {
+                                    if (Utils.passwordMatch(password, newValue)) {
+                                        blockedChannelData.unlock();
+                                        applyChange.run();
+                                        return true;
+                                    }
+                                    return false;
+                                });
+                    } else {
+                        applyChange.run();
+                    }
                 }));
     }
 

@@ -20,6 +20,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.data.SettingsGroup;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.SettingsItem;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.VideoGroup;
+import com.liskovsoft.smartyoutubetv2.common.app.models.errors.BlockedChannelsLockedError;
 import com.liskovsoft.smartyoutubetv2.common.app.models.errors.CategoryEmptyError;
 import com.liskovsoft.smartyoutubetv2.common.app.models.errors.ErrorFragmentData;
 import com.liskovsoft.smartyoutubetv2.common.app.models.errors.PasswordError;
@@ -651,6 +652,9 @@ public class BrowsePresenter extends BasePresenter<BrowseView> implements Sectio
                 if (mGridMapping.containsKey(section.getId())) {
                     Observable<MediaGroup> group = mGridMapping.get(section.getId());
                     updateVideoGrid(section, group, section.isAuthOnly());
+                } else if (section.getId() == MediaGroup.TYPE_BLOCKED_CHANNELS && BlockedChannelData.instance(getContext()).isLocked()) {
+                    getView().showError(new BlockedChannelsLockedError(getContext()));
+                    getView().showProgressBar(false);
                 } else if (mLocalGridMappings.containsKey(section.getId())) {
                     Callable<List<Video>> localVideos = mLocalGridMappings.get(section.getId());
                     updateLocalGrid(section, localVideos);

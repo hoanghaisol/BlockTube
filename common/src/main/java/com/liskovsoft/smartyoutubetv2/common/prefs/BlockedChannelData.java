@@ -20,9 +20,12 @@ import java.util.TreeSet;
 
 public class BlockedChannelData implements ProfileChangeListener {
     private static final String BLOCKED_CHANNEL_DATA = "blocked_channel_data";
+    private static final long UNLOCK_TIMEOUT_MS = 5 * 60 * 1_000;
     @SuppressLint("StaticFieldLeak")
     private static BlockedChannelData sInstance;
     private final AppPrefs mPrefs;
+    private final Context mContext;
+    private long mUnlockedUntilMs;
     private final TreeSet<Channel> mChannels =
             new TreeSet<>((channel1, channel2) -> {
                 // Sort by name, but keep different channels with the same name apart
@@ -84,6 +87,7 @@ public class BlockedChannelData implements ProfileChangeListener {
     }
 
     private BlockedChannelData(Context context) {
+        mContext = context;
         mPrefs = AppPrefs.instance(context);
         mPrefs.addListener(this);
         restoreState();
@@ -183,6 +187,17 @@ public class BlockedChannelData implements ProfileChangeListener {
 
     public boolean isEmpty() {
         return mChannels.isEmpty();
+    }
+
+    /**
+     * Viewing and unblocking are protected by the settings password (if set)
+     */
+    public boolean isLocked() {
+        return GeneralData.instance(mContext).getSettingsPassword() != null && System.currentTimeMillis() > mUnlockedUntilMs;
+    }
+
+    public void unlock() {
+        mUnlockedUntilMs = System.currentTimeMillis() + UNLOCK_TIMEOUT_MS;
     }
 
     /**
