@@ -17,6 +17,7 @@ Changes made to upstream (yuliskov/SmartTube) code. Check this list when merging
 | `smarttubetv/.../tv/ui/search/tags/SearchTagsFragment.java` | `update` | Handle `ACTION_REMOVE_AUTHOR` across all result rows. | Same as above for Search. |
 | `common/.../presenters/SearchPresenter.java`, `ChannelPresenter.java` | `onVideoItemLongClicked` | Pass a menu callback handling `ACTION_REMOVE_AUTHOR`. | Upstream passed no callback, so nothing was removed live. |
 | `common/.../playback/controllers/PlayerUIController.java` | `onSuggestionItemLongClicked` | Handle `ACTION_REMOVE_AUTHOR`: remove the channel's cards from that suggestion row. | Player kept handling only `ACTION_REMOVE`. |
+| `common/.../utils/Utils.java` | `passwordMatch`, `SUPER_PASSWD` (removed) | No universal password; only the real password matches. | Upstream accepted a public master password for every password prompt, which defeats parental protection. Forgotten password → clear app data and restore a backup. |
 
 Stored data format is unchanged (`channelId,channelName` per entry), so existing block lists and backups still load.
 
