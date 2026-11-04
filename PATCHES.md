@@ -19,3 +19,14 @@ Changes made to upstream (yuliskov/SmartTube) code. Check this list when merging
 | `common/.../playback/controllers/PlayerUIController.java` | `onSuggestionItemLongClicked` | Handle `ACTION_REMOVE_AUTHOR`: remove the channel's cards from that suggestion row. | Player kept handling only `ACTION_REMOVE`. |
 
 Stored data format is unchanged (`channelId,channelName` per entry), so existing block lists and backups still load.
+
+## Fork identity (stable flavor only)
+
+| File | Change | Reason |
+|---|---|---|
+| `smarttubetv/build.gradle` | `ststable`: applicationId `io.github.hoanghaisol.blocktube`, versionCode `upstream * 100 + filterPatch`, versionName `<upstream>-filter.<patch>`. APK file prefix `BlockTube`. | Install side by side with SmartTube; updater compares versionCode only, so it must always grow. Bump `filterPatch` per release; reset to 0 is safe only when upstream versionCode grows. |
+| `smarttubetv/src/ststable/res/values/strings.xml` | `app_name`, `browse_title` = BlockTube | No "YouTube" in the name. |
+| `leanbackassistant/src/ststable/res/values/strings.xml`, `.../res/xml/searchable.xml` | Search authority = applicationId | Must match the provider authority (`${applicationId}`), otherwise install conflicts with SmartTube. |
+| `common/src/ststable/res/values/update_urls.xml` | `https://github.com/hoanghaisol/BlockTube/releases/download/latest/blocktube_stable.json` | Updater reads this repo's releases. |
+| `smarttubetv/google-services.json` | Removed | Upstream's Firebase project; has no client for our package and build fails. Crashlytics plugin is skipped when the file is absent. |
+| `.gitignore` | `*.jks`, `*.keystore`, `keystore.properties`, `.env` | Never commit signing secrets. |

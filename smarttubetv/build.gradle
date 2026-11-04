@@ -123,7 +123,7 @@ android {
     // https://stackoverflow.com/questions/18332474/how-to-set-versionname-in-apk-filename-using-gradle
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            def project = "SmartTube"
+            def project = "BlockTube"
             def flavor = variant.productFlavors[-1].name.substring(2) // remove st prefix
             def buildType = variant.buildType.name.take(1)
             def version = variant.versionName
@@ -164,7 +164,11 @@ android {
             targetSdkVersion project.properties.compileSdkVersion
         }
         ststable {
-            applicationId "org.smarttube.stable"
+            // BlockTube fork. versionCode = upstream * 100 + patch (see PATCHES.md)
+            def filterPatch = 1
+            applicationId "io.github.hoanghaisol.blocktube"
+            versionCode android.defaultConfig.versionCode * 100 + filterPatch
+            versionName "${android.defaultConfig.versionName}-filter.${filterPatch}"
             targetSdkVersion project.properties.compileSdkVersion
         }
         stfdroid {
