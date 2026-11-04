@@ -48,6 +48,13 @@ public class ChannelFilter {
         List<String> getRecentTitles(String channelId);
 
         /**
+         * Blocking, called on a background thread.
+         *
+         * @return channel id of the video's author, or null
+         */
+        String resolveChannelId(String videoId);
+
+        /**
          * @return channelId → name of blocked channels (entries without an id are skipped)
          */
         Map<String, String> getBlockedChannels();
@@ -145,6 +152,20 @@ public class ChannelFilter {
         }
 
         if (mStore.addSeen(channelId, channelName)) {
+            mHandler.removeCallbacks(mSaveSeen);
+            mHandler.postDelayed(mSaveSeen, SAVE_DELAY_MS);
+        }
+    }
+
+    /**
+     * For videos without a channel id (search results). Resolved later in the background.
+     */
+    public void onUnresolvedChannelSeen(String channelName, String videoId) {
+        if (!mEnabled || channelName == null || videoId == null) {
+            return;
+        }
+
+        if (mStore.addPending(channelName, videoId)) {
             mHandler.removeCallbacks(mSaveSeen);
             mHandler.postDelayed(mSaveSeen, SAVE_DELAY_MS);
         }

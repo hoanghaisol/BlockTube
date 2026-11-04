@@ -50,3 +50,12 @@ New module `:channelfilter` (no upstream code). Upstream touch points:
 | `common/build.gradle` | `api project(':channelfilter')` | Bridge lives in `common`. |
 | `common/.../models/data/VideoGroup.java` | `add()`: call `ChannelFilterBridge.onVideoSeen(video)` after the block filter | Collect channels seen while browsing (cheap, in-memory LRU). |
 | `common/.../misc/ChannelFilterBridge.java` | New file | Only upstream-side class that talks to the module: RSS titles, block list, playback state; listens to `BlockedChannelData`. |
+| `common/.../presenters/settings/GeneralSettingsPresenter.java` | `show()`: one line `SimilarChannelsPresenter...appendSettings(...)` | Feature switch + "Review similar channels" button at the end of Settings → General. |
+| `common/.../presenters/settings/SimilarChannelsPresenter.java` | New file | Settings category and review dialog (Block / Ignore / Open channel per suggestion). |
+| `common/src/main/res/values{,-vi}/strings_blocktube.xml` | New files | BlockTube strings kept out of upstream `strings.xml`. |
+
+## Block from search results
+
+| File | Function | Change | Reason |
+|---|---|---|---|
+| `common/.../presenters/dialogs/menu/VideoMenuPresenter.java` | `appendBlockChannelButton` | When the video has no channel id (search results), block by name immediately, then resolve the id via `loadMetadata` and re-add the entry with the id. | Search result videos carry no channel id, so blocks from Search were name-only (and invisible to the suggester). |

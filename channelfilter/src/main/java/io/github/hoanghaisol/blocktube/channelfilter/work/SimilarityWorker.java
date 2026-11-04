@@ -38,6 +38,7 @@ public class SimilarityWorker extends Worker {
     private static final int MAX_TITLES = 15;
     private static final int THREADS = 2;
     private static final long FETCH_PAUSE_MS = 300;
+    private static final int MAX_RESOLVES_PER_RUN = 30;
 
     public SimilarityWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
@@ -78,6 +79,8 @@ public class SimilarityWorker extends Worker {
             return Result.success();
         }
 
+        resolvePending(filter);
+
         Map<String, String> seen = store.getSeen();
         Set<String> dismissed = store.getDismissed();
 
@@ -98,6 +101,7 @@ public class SimilarityWorker extends Worker {
         }
 
         boolean interrupted = embedMissing(filter, missing, blocked, seen);
+        Log.i(TAG, String.format("Embedded up to %d of %d missing vectors, interrupted: %s", MAX_EMBEDDINGS_PER_RUN, missing.size(), interrupted));
 
         store.retainVectors(all);
         rank(store, blocked, dismissed, candidates, seen);
@@ -105,7 +109,30 @@ public class SimilarityWorker extends Worker {
         filter.notifySuggestions();
 
         // Unfinished: continue later
-        return interrupted || missing.size() > MAX_EMBEDDINGS_PER_RUN ? Result.retry() : Result.success();
+        boolean unfinished = interrupted || missing.size() > MAX_EMBEDDINGS_PER_RUN || !store.getPending().isEmpty();
+        return unfinished ? Result.retry() : Result.success();
+    }
+
+    /**
+     * Channels seen without an id (search results): look the id up from one of their videos.
+     */
+    private void resolvePending(ChannelFilter filter) {
+        ChannelFilter.Host host = filter.getHost();
+        ChannelStore store = filter.getStore();
+        int count = 0;
+
+        for (Map.Entry<String, String> pending : store.getPending().entrySet()) {
+            if (isStopped() || count++ >= MAX_RESOLVES_PER_RUN || host.isPlaybackActive()) {
+                return;
+            }
+            store.resolvePending(pending.getKey(), host.resolveChannelId(pending.getValue()));
+
+            try {
+                Thread.sleep(FETCH_PAUSE_MS);
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
     }
 
     /**
@@ -183,5 +210,9 @@ public class SimilarityWorker extends Worker {
                     blocked.get(result.closestBlockedId)));
         }
         store.setSuggestions(suggestions);
+
+        Log.i(TAG, String.format("Ranked %d candidates against %d blocked (%d vectors): %d suggestions%s",
+                candidates.size(), blocked.size(), all.size(), suggestions.size(),
+                suggestions.isEmpty() ? "" : ", top " + suggestions.get(0).channelName + " " + suggestions.get(0).score));
     }
 }

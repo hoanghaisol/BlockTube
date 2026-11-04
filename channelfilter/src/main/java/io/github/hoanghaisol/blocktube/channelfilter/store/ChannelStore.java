@@ -27,8 +27,9 @@ import java.util.Set;
  * Thread-safe; every method locks the store.
  */
 public class ChannelStore {
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     private static final int MAX_SEEN = 500;
+    private static final int MAX_PENDING = 100;
 
     public static class Suggestion {
         public final String channelId;
@@ -61,6 +62,14 @@ public class ChannelStore {
             return size() > MAX_SEEN;
         }
     };
+    /** Channels shown without an id (e.g. search results): name → one of their video ids */
+    private final LinkedHashMap<String, String> mPending = new LinkedHashMap<String, String>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+            return size() > MAX_PENDING;
+        }
+    };
+    private final Set<String> mSeenNames = new HashSet<>();
     private final Map<String, Vector> mVectors = new HashMap<>();
     private final Set<String> mDismissed = new HashSet<>();
     private final List<Suggestion> mSuggestions = new ArrayList<>();
@@ -79,7 +88,38 @@ public class ChannelStore {
     public synchronized boolean addSeen(String channelId, String channelName) {
         String previous = mSeen.put(channelId, channelName);
         mSeenDirty |= previous == null || (channelName != null && !channelName.equals(previous));
+        if (channelName != null) {
+            mSeenNames.add(channelName);
+            mPending.remove(channelName);
+        }
         return previous == null;
+    }
+
+    /**
+     * @return true if the channel is new
+     */
+    public synchronized boolean addPending(String channelName, String videoId) {
+        if (mSeenNames.contains(channelName) || mPending.containsKey(channelName)) {
+            return false;
+        }
+        mPending.put(channelName, videoId);
+        mSeenDirty = true;
+        return true;
+    }
+
+    public synchronized Map<String, String> getPending() {
+        return new LinkedHashMap<>(mPending);
+    }
+
+    /**
+     * @param channelId null if it couldn't be resolved (dropped anyway)
+     */
+    public synchronized void resolvePending(String channelName, String channelId) {
+        mPending.remove(channelName);
+        mSeenDirty = true;
+        if (channelId != null && channelId.startsWith("UC")) {
+            addSeen(channelId, channelName);
+        }
     }
 
     public synchronized Map<String, String> getSeen() {
@@ -153,6 +193,8 @@ public class ChannelStore {
 
     public synchronized void clear() {
         mSeen.clear();
+        mPending.clear();
+        mSeenNames.clear();
         mVectors.clear();
         mDismissed.clear();
         mSuggestions.clear();
@@ -182,6 +224,12 @@ public class ChannelStore {
             for (Map.Entry<String, String> entry : mSeen.entrySet()) {
                 out.writeUTF(entry.getKey());
                 writeNullableUTF(out, entry.getValue());
+            }
+
+            out.writeInt(mPending.size());
+            for (Map.Entry<String, String> entry : mPending.entrySet()) {
+                out.writeUTF(entry.getKey());
+                out.writeUTF(entry.getValue());
             }
 
             out.writeInt(mVectors.size());
@@ -229,7 +277,16 @@ public class ChannelStore {
             }
 
             for (int i = in.readInt(); i > 0; i--) {
-                mSeen.put(in.readUTF(), readNullableUTF(in));
+                String id = in.readUTF();
+                String name = readNullableUTF(in);
+                mSeen.put(id, name);
+                if (name != null) {
+                    mSeenNames.add(name);
+                }
+            }
+
+            for (int i = in.readInt(); i > 0; i--) {
+                mPending.put(in.readUTF(), in.readUTF());
             }
 
             for (int i = in.readInt(); i > 0; i--) {

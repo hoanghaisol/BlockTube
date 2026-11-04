@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="similar_channels_category">Kênh tương tự (AI)</string>
+    <string name="similar_channels_enable">Gợi ý kênh giống kênh đã chặn</string>
+    <string name="similar_channels_enable_desc">Chạy ngay trên thiết bị, chỉ khi không phát video. Bạn xác nhận từng kênh trước khi chặn.</string>
+    <string name="similar_channels_confirm_download">Tải mô hình AI (khoảng 120 MB)?</string>
+    <string name="similar_channels_downloading">Đang tải mô hình AI. Gợi ý sẽ xuất hiện sau khi bạn chặn một kênh.</string>
+    <string name="similar_channels_show">Xem kênh tương tự (%d)</string>
+    <string name="similar_channels_title">Kênh tương tự</string>
+    <string name="similar_channels_like">%1$s (giống %2$s)</string>
+    <string name="similar_channels_ignore">Bỏ qua (không gợi ý lại)</string>
+    <string name="similar_channels_none">Chưa có gợi ý. Gợi ý xuất hiện sau khi bạn chặn một kênh.</string>
+    <string name="similar_channels_found">Có %d kênh tương tự cần xem: Cài đặt → Chung → Kênh tương tự</string>
+</resources>

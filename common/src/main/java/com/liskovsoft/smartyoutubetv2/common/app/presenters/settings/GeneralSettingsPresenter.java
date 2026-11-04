@@ -86,6 +86,7 @@ public class GeneralSettingsPresenter extends BasePresenter<Void> {
         appendNetworkCategory(settingsPresenter);
         appendHistoryCategory(settingsPresenter);
         appendMiscCategory(settingsPresenter);
+        SimilarChannelsPresenter.instance(getContext()).appendSettings(settingsPresenter); // BlockTube
 
         settingsPresenter.showDialog(getContext().getString(R.string.settings_general), mOnFinish);
     }

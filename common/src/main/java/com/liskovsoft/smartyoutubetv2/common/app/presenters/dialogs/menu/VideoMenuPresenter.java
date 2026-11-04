@@ -478,6 +478,15 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
                         } else {
                             blockedChannelData.addChannel(channelId, channelName);
                             MessageHelpers.showMessage(getContext(), R.string.channel_blocked);
+
+                            if (channelId == null && video.videoId != null) {
+                                // Search results have no channel id: resolve it so the block matches by id, not only by name
+                                getServiceManager().loadMetadata(video, metadata -> {
+                                    if (metadata.getChannelId() != null) {
+                                        blockedChannelData.addChannel(metadata.getChannelId(), channelName);
+                                    }
+                                });
+                            }
                         }
 
                         if (callback != null) {

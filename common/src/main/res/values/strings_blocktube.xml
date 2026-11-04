@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BlockTube strings, kept apart from upstream strings.xml to avoid merge conflicts -->
+<resources>
+    <string name="similar_channels_category">Similar channels (AI)</string>
+    <string name="similar_channels_enable">Suggest channels similar to blocked ones</string>
+    <string name="similar_channels_enable_desc">Runs on this device, only while nothing is playing. You confirm every block.</string>
+    <string name="similar_channels_confirm_download">Download the AI model (about 120 MB)?</string>
+    <string name="similar_channels_downloading">The AI model is downloading. Suggestions appear after you block a channel.</string>
+    <string name="similar_channels_show">Review similar channels (%d)</string>
+    <string name="similar_channels_title">Similar channels</string>
+    <string name="similar_channels_like">%1$s (like %2$s)</string>
+    <string name="similar_channels_ignore">Ignore (don\'t suggest again)</string>
+    <string name="similar_channels_none">No suggestions yet. They appear after you block a channel.</string>
+    <string name="similar_channels_found">%d similar channel(s) to review: Settings → General → Similar channels</string>
+</resources>
