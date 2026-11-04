@@ -233,6 +233,11 @@ public abstract class MultipleRowsFragment extends RowsSupportFragment implement
                 adapter.remove(group);
             }
             return;
+        } else if (action == VideoGroup.ACTION_REMOVE_AUTHOR) {
+            for (VideoGroupObjectAdapter adapter : mVideoGroupAdapters.values()) {
+                adapter.removeAuthor(group);
+            }
+            return;
         } else if (action == VideoGroup.ACTION_SYNC) {
             VideoGroupObjectAdapter adapter = mVideoGroupAdapters.get(group.getId());
             if (adapter != null) {

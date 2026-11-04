@@ -336,6 +336,11 @@ public class SearchTagsFragment extends SearchTagsFragmentBase {
                 adapter.sync(group);
             }
             return;
+        } else if (action == VideoGroup.ACTION_REMOVE_AUTHOR) {
+            for (VideoGroupObjectAdapter adapter : mSearchGroupAdapters.values()) {
+                adapter.removeAuthor(group);
+            }
+            return;
         }
 
         if (group.isEmpty()) {

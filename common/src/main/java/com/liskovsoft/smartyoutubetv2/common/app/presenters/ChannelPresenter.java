@@ -106,7 +106,11 @@ public class ChannelPresenter extends BasePresenter<ChannelView> implements Vide
 
     @Override
     public void onVideoItemLongClicked(Video item) {
-        VideoMenuPresenter.instance(getContext()).showMenu(item);
+        VideoMenuPresenter.instance(getContext()).showMenu(item, (videoItem, action) -> {
+            if (action == VideoMenuPresenter.VideoMenuCallback.ACTION_REMOVE_AUTHOR) {
+                removeItemAuthor(videoItem);
+            }
+        });
     }
 
     @Override

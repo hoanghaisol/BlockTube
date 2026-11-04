@@ -46,6 +46,7 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PlayerUIController extends BasePlayerController {
@@ -395,6 +396,11 @@ public class PlayerUIController extends BasePlayerController {
                 int id = item.getGroup().getId();
                 VideoGroup group = VideoGroup.from(videoItem);
                 group.setId(id);
+                getPlayer().removeSuggestions(group);
+            } else if (action == VideoMenuCallback.ACTION_REMOVE_AUTHOR) {
+                List<Video> sameChannel = Helpers.filter(item.getGroup().getVideos(), videoItem::isSameChannel);
+                VideoGroup group = VideoGroup.from(sameChannel != null ? sameChannel : Collections.singletonList(videoItem));
+                group.setId(item.getGroup().getId());
                 getPlayer().removeSuggestions(group);
             } else if (action == VideoMenuCallback.ACTION_ADD_TO_QUEUE
                     || action == VideoMenuCallback.ACTION_REMOVE_FROM_QUEUE

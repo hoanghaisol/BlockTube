@@ -193,8 +193,8 @@ public class VideoGroupObjectAdapter extends ObjectAdapter {
     }
 
     public void removeAuthor(VideoGroup group) {
-        String author = group.getVideos().get(0).getAuthor(); // assume same author
-        List<Video> result = Helpers.filter(mVideoItems, video -> Helpers.equals(author, video.getAuthor()));
+        Video first = group.getVideos().get(0); // assume same author
+        List<Video> result = Helpers.filter(mVideoItems, first::isSameChannel);
         if (result != null) {
             remove(VideoGroup.from(result));
         }

@@ -864,6 +864,22 @@ public final class Video {
         return nextVideo;
     }
 
+    /**
+     * Channel id first, author name as a fallback.
+     */
+    public boolean isSameChannel(Video other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (channelId != null && other.channelId != null) {
+            return channelId.equals(other.channelId);
+        }
+
+        String author = getAuthor();
+        return author != null && author.equals(other.getAuthor());
+    }
+
     private MediaItem findFirstAllowed(List<MediaGroup> suggestions, int fromGroup, BlockedChannelData blockedChannelData) {
         if (suggestions == null) {
             return null;

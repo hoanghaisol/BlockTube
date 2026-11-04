@@ -113,7 +113,11 @@ public class SearchPresenter extends BasePresenter<SearchView> implements VideoG
             return;
         }
 
-        VideoMenuPresenter.instance(getContext()).showMenu(item);
+        VideoMenuPresenter.instance(getContext()).showMenu(item, (videoItem, action) -> {
+            if (action == VideoMenuPresenter.VideoMenuCallback.ACTION_REMOVE_AUTHOR) {
+                removeItemAuthor(videoItem);
+            }
+        });
     }
 
     public void onTagLongClicked(Tag item) {

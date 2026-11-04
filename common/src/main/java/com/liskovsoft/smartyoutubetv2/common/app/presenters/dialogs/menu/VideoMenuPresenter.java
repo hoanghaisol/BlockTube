@@ -453,7 +453,7 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
         String channelId = mVideo.channelId;
         String channelName = mVideo.getAuthor();
 
-        if (channelName == null) {
+        if (channelId == null && channelName == null) {
             return;
         }
 
@@ -475,7 +475,8 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
                     }
 
                     if (mCallback != null) {
-                        mCallback.onItemAction(mVideo, VideoMenuCallback.ACTION_REMOVE);
+                        // Block: remove every card of the channel, not only the selected one
+                        mCallback.onItemAction(mVideo, isBlocked ? VideoMenuCallback.ACTION_REMOVE : VideoMenuCallback.ACTION_REMOVE_AUTHOR);
                     }
                     mDialogPresenter.closeDialog();
                     showHideBlockedChannelsSection(blockedChannelData);
