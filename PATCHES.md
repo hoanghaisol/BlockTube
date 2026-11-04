@@ -39,3 +39,14 @@ Stored data format is unchanged (`channelId,channelName` per entry), so existing
 | `.github/workflows/release.yml` | Manual release: build signed stable APKs, publish `v<versionName>` with SHA-256, update `blocktube_stable.json` in release `latest`. |
 | `scripts/make_update_manifest.py` | Build/merge the updater manifest; refuses a versionCode that is not newer. |
 | `.github/README.md` | Fork README (GitHub shows it instead of the upstream root README). |
+
+## Similar channels suggester (Phase 2)
+
+New module `:channelfilter` (no upstream code). Upstream touch points:
+
+| File | Change | Reason |
+|---|---|---|
+| `settings.gradle` | include `:channelfilter` | New module. |
+| `common/build.gradle` | `api project(':channelfilter')` | Bridge lives in `common`. |
+| `common/.../models/data/VideoGroup.java` | `add()`: call `ChannelFilterBridge.onVideoSeen(video)` after the block filter | Collect channels seen while browsing (cheap, in-memory LRU). |
+| `common/.../misc/ChannelFilterBridge.java` | New file | Only upstream-side class that talks to the module: RSS titles, block list, playback state; listens to `BlockedChannelData`. |

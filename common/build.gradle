@@ -101,6 +101,7 @@ dependencies {
     implementation project(':leanbackassistant')
 
     implementation project(':appupdatechecker2')
+    api project(':channelfilter') // BlockTube
 
     implementation project(':slidableactivity') // https://github.com/r0adkll/Slidr
 }

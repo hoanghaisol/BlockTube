@@ -8,6 +8,7 @@ import com.liskovsoft.sharedutils.mylogger.Log;
 import com.liskovsoft.sharedutils.prefs.GlobalPreferences;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService.State;
+import com.liskovsoft.smartyoutubetv2.common.misc.ChannelFilterBridge;
 import com.liskovsoft.smartyoutubetv2.common.prefs.BlockedChannelData;
 
 import java.util.ArrayList;
@@ -474,6 +475,9 @@ public class VideoGroup {
         }
 
         mVideos.add(idx, video);
+
+        // BlockTube: collect channels for the similar channels suggester
+        ChannelFilterBridge.onVideoSeen(video);
     }
 
     private boolean isChannelBlocked(Video video) {
