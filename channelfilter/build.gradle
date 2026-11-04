@@ -14,8 +14,9 @@ android {
 
     defaultConfig {
         minSdkVersion project.properties.minSdkVersion
-        targetSdkVersion project.properties.targetSdkVersion
+        targetSdkVersion project.properties.compileSdkVersion // same as the ststable app; 27 is blocked by Play Protect
         multiDexEnabled = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -33,6 +34,11 @@ android {
 }
 
 dependencies {
+    // 1.31.x is newer than two weeks at the time of writing; bump deliberately
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.30.0'
+
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'com.google.code.gson:gson:' + gsonVersion
 }

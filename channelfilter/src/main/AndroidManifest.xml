@@ -1,1 +1,6 @@
-<manifest package="io.github.hoanghaisol.blocktube.channelfilter" />
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    package="io.github.hoanghaisol.blocktube.channelfilter">
+
+    <!-- ONNX Runtime needs API 24; the feature is disabled at runtime below that (Embedder.isSupported) -->
+    <uses-sdk tools:overrideLibrary="ai.onnxruntime" />
+</manifest>
