@@ -35,6 +35,7 @@ import io.github.hoanghaisol.blocktube.channelfilter.work.SimilarityWorker;
 public class ChannelFilter {
     private static final String PREFS = "channelfilter";
     private static final String KEY_ENABLED = "enabled";
+    private static final String KEY_AUTO_BLOCK = "auto_block";
     private static final String WORK_NAME = "channelfilter_similar";
     private static final long SAVE_DELAY_MS = 30_000;
     private static final long STARTUP_DELAY_MS = 60_000;
@@ -55,6 +56,11 @@ public class ChannelFilter {
         String resolveChannelId(String videoId);
 
         /**
+         * Called on a background thread when auto-block is on.
+         */
+        void blockChannel(String channelId, String channelName);
+
+        /**
          * @return channelId → name of blocked channels (entries without an id are skipped)
          */
         Map<String, String> getBlockedChannels();
@@ -67,6 +73,8 @@ public class ChannelFilter {
 
     public interface SuggestionsListener {
         void onSuggestionsChanged(List<Suggestion> suggestions);
+
+        void onAutoBlocked(List<Suggestion> channels);
     }
 
     private static ChannelFilter sInstance;
@@ -140,6 +148,33 @@ public class ChannelFilter {
             });
             notifySuggestions();
         }
+    }
+
+    /**
+     * Block every suggestion without asking (default). Only channels the user blocked serve as
+     * examples, so auto-blocks don't chain.
+     */
+    public boolean isAutoBlock() {
+        return mPrefs.getBoolean(KEY_AUTO_BLOCK, true);
+    }
+
+    public void setAutoBlock(boolean autoBlock) {
+        mPrefs.edit().putBoolean(KEY_AUTO_BLOCK, autoBlock).apply();
+        if (mEnabled && autoBlock) {
+            scheduleWork(0, ExistingWorkPolicy.REPLACE); // Handle pending suggestions
+        }
+    }
+
+    public List<Suggestion> getAutoBlocked() {
+        return mEnabled ? mStore.getAutoBlocked() : new ArrayList<>();
+    }
+
+    /**
+     * The app unblocked an auto-blocked channel: remember it so it's never auto-blocked again.
+     */
+    public void onAutoBlockUndone(String channelId) {
+        mStore.undoAutoBlock(channelId);
+        mIoExecutor.execute(mStore::save);
     }
 
     public boolean isModelReady() {
@@ -229,6 +264,14 @@ public class ChannelFilter {
         mHandler.post(() -> {
             for (SuggestionsListener listener : new ArrayList<>(mListeners)) {
                 listener.onSuggestionsChanged(suggestions);
+            }
+        });
+    }
+
+    public void notifyAutoBlocked(List<Suggestion> channels) {
+        mHandler.post(() -> {
+            for (SuggestionsListener listener : new ArrayList<>(mListeners)) {
+                listener.onAutoBlocked(channels);
             }
         });
     }

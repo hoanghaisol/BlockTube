@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- BlockTube strings, kept apart from upstream strings.xml to avoid merge conflicts -->
 <resources>
-    <string name="similar_channels_category">Similar channels (AI)</string>
-    <string name="similar_channels_enable">Suggest channels similar to blocked ones</string>
-    <string name="similar_channels_enable_desc">Runs on this device, only while nothing is playing. You confirm every block.</string>
+    <string name="content_filter_title">Content filter</string>
+    <string name="content_filter_blocked_channels">Blocked channels (%d)</string>
+    <string name="content_filter_unblock">Unblock: %s</string>
+    <string name="content_filter_empty">Empty</string>
+    <string name="content_filter_search_keywords">Blocked search keywords (%d)</string>
+    <string name="content_filter_video_keywords">Blocked video keywords (%d)</string>
+    <string name="content_filter_add_keyword">+ Add keyword</string>
+    <string name="content_filter_remove_keyword">Remove: %s</string>
+    <string name="search_no_results">No results</string>
+
+    <string name="similar_channels_category">AI: similar channels</string>
+    <string name="similar_channels_enable">Find channels similar to blocked ones</string>
+    <string name="similar_channels_enable_desc">Runs on this device, only while nothing is playing.</string>
+    <string name="similar_channels_auto_block">Block them automatically</string>
+    <string name="similar_channels_auto_block_desc">Off: review each suggestion yourself.</string>
     <string name="similar_channels_confirm_download">Download the AI model (about 120 MB)?</string>
-    <string name="similar_channels_downloading">The AI model is downloading. Suggestions appear after you block a channel.</string>
+    <string name="similar_channels_downloading">The AI model is downloading. It starts working after you block a channel.</string>
     <string name="similar_channels_show">Review similar channels (%d)</string>
+    <string name="similar_channels_auto_blocked_list">Blocked by AI (%d)</string>
+    <string name="similar_channels_auto_blocked">AI blocked %d similar channel(s). See Settings → Content filter</string>
     <string name="similar_channels_title">Similar channels</string>
     <string name="similar_channels_like">%1$s (like %2$s)</string>
     <string name="similar_channels_ignore">Ignore (don\'t suggest again)</string>
     <string name="similar_channels_none">No suggestions yet. They appear after you block a channel.</string>
-    <string name="similar_channels_found">%d similar channel(s) to review: Settings → General → Similar channels</string>
+    <string name="similar_channels_found">%d similar channel(s) to review: Settings → Content filter</string>
+
+    <string name="pin_set">Set PIN</string>
+    <string name="pin_change">Change PIN</string>
+    <string name="pin_remove">Remove PIN</string>
+    <string name="pin_enter">Enter PIN</string>
+    <string name="pin_new">New 4-digit PIN</string>
+    <string name="pin_confirm">Enter the PIN again</string>
+    <string name="pin_must_be_4_digits">The PIN must be 4 digits</string>
+    <string name="pin_mismatch">PINs don\'t match</string>
+    <string name="pin_wrong">Wrong PIN</string>
+    <string name="pin_saved">PIN saved. It protects Settings and the block list.</string>
+    <string name="pin_removed">PIN removed</string>
 </resources>

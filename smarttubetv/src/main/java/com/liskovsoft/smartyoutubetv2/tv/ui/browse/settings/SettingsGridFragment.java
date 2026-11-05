@@ -14,6 +14,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.data.SettingsItem;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter;
 import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.MainUIData;
+import com.liskovsoft.smartyoutubetv2.common.utils.PinHelper;
 import com.liskovsoft.smartyoutubetv2.common.utils.SimpleEditDialog;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.smartyoutubetv2.tv.R;
@@ -128,23 +129,8 @@ public class SettingsGridFragment extends GridFragment implements SettingsSectio
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
 
             if (item instanceof SettingsItem) {
-                String password = getGeneralData().getSettingsPassword();
-
-                if (password == null) {
-                    ((SettingsItem) item).onClick.run();
-                } else {
-                    SimpleEditDialog.showPassword(
-                            getContext(),
-                            getContext().getString(R.string.enter_settings_password),
-                            null,
-                            newValue -> {
-                                if (Utils.passwordMatch(password, newValue)) {
-                                    ((SettingsItem) item).onClick.run();
-                                    return true;
-                                }
-                                return false;
-                            });
-                }
+                // BlockTube: 4-digit PIN, unlocked for a few minutes
+                PinHelper.check(getContext(), ((SettingsItem) item).onClick);
 
                 // Close PIP inside Settings section
                 //if (PlaybackPresenter.instance(getContext()).isInPipMode()) {

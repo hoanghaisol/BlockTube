@@ -30,6 +30,7 @@ import com.liskovsoft.smartyoutubetv2.common.prefs.SearchData;
 import com.liskovsoft.smartyoutubetv2.common.proxy.ProxyManager;
 import com.liskovsoft.smartyoutubetv2.common.proxy.WebProxyDialog;
 import com.liskovsoft.smartyoutubetv2.common.utils.AppDialogUtil;
+import com.liskovsoft.smartyoutubetv2.common.utils.PinHelper;
 import com.liskovsoft.smartyoutubetv2.common.utils.SimpleEditDialog;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.youtubeapi.service.internal.MediaServiceData;
@@ -86,7 +87,6 @@ public class GeneralSettingsPresenter extends BasePresenter<Void> {
         appendNetworkCategory(settingsPresenter);
         appendHistoryCategory(settingsPresenter);
         appendMiscCategory(settingsPresenter);
-        SimilarChannelsPresenter.instance(getContext()).appendSettings(settingsPresenter); // BlockTube
 
         settingsPresenter.showDialog(getContext().getString(R.string.settings_general), mOnFinish);
     }
@@ -776,17 +776,13 @@ public class GeneralSettingsPresenter extends BasePresenter<Void> {
         }
 
         settingsPresenter.closeDialog();
-        SimpleEditDialog.showPassword(
-                getContext(),
-                getContext().getString(R.string.protect_settings_with_password),
-                null,
-                newValue -> {
-                    mGeneralData.setSettingsPassword(newValue);
-                    if (onSuccess != null) {
-                        onSuccess.run();
-                    }
-                    return true;
-                });
+        // BlockTube: 4-digit PIN
+        PinHelper.showSetPin(getContext(), pin -> {
+            mGeneralData.setSettingsPassword(pin);
+            if (onSuccess != null) {
+                onSuccess.run();
+            }
+        });
     }
 
     private void showMasterPasswordDialog(AppDialogPresenter settingsPresenter, Runnable onSuccess) {

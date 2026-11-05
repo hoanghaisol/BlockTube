@@ -39,6 +39,7 @@ public class ChannelFilterBridge implements ChannelFilter.Host, BlockedChannelDa
     private static final String TAG = ChannelFilterBridge.class.getSimpleName();
     private final Context mContext;
     private final Set<String> mKnownSuggestions = new HashSet<>();
+    private boolean mIsAutoBlocking;
 
     private ChannelFilterBridge(Context context) {
         mContext = context.getApplicationContext();
@@ -90,7 +91,24 @@ public class ChannelFilterBridge implements ChannelFilter.Host, BlockedChannelDa
 
     @Override
     public void onChanged() {
-        ChannelFilter.peek().onBlockedChanged();
+        // Auto-blocks don't trigger a new run (they aren't used as examples anyway)
+        if (!mIsAutoBlocking) {
+            ChannelFilter.peek().onBlockedChanged();
+        }
+    }
+
+    @Override
+    public void blockChannel(String channelId, String channelName) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            mIsAutoBlocking = true;
+            BlockedChannelData.instance(mContext).addChannel(channelId, channelName);
+            mIsAutoBlocking = false;
+        });
+    }
+
+    @Override
+    public void onAutoBlocked(List<Suggestion> channels) {
+        MessageHelpers.showMessage(mContext, mContext.getString(R.string.similar_channels_auto_blocked, channels.size()));
     }
 
     /**

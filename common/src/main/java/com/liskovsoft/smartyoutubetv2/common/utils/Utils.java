@@ -115,6 +115,7 @@ public class Utils {
             "org.smarttube.beta",
             "org.smarttube.stable",
             "app.smarttube.fdroid",
+            "io.github.hoanghaisol.blocktube", // BlockTube
     };
     public static final String[] BACKUP_PREFS = {
             "yt_service_prefs.xml",

@@ -27,7 +27,7 @@ import java.util.Set;
  * Thread-safe; every method locks the store.
  */
 public class ChannelStore {
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
     private static final int MAX_SEEN = 500;
     private static final int MAX_PENDING = 100;
 
@@ -73,6 +73,8 @@ public class ChannelStore {
     private final Map<String, Vector> mVectors = new HashMap<>();
     private final Set<String> mDismissed = new HashSet<>();
     private final List<Suggestion> mSuggestions = new ArrayList<>();
+    /** Channels the AI blocked by itself (newest last) */
+    private final List<Suggestion> mAutoBlocked = new ArrayList<>();
     private boolean mSeenDirty;
 
     public ChannelStore(File dir) {
@@ -191,6 +193,45 @@ public class ChannelStore {
         }
     }
 
+    public synchronized void addAutoBlocked(List<Suggestion> channels) {
+        mAutoBlocked.addAll(channels);
+    }
+
+    public synchronized List<Suggestion> getAutoBlocked() {
+        return new ArrayList<>(mAutoBlocked);
+    }
+
+    public synchronized Set<String> getAutoBlockedIds() {
+        Set<String> result = new HashSet<>();
+        for (Suggestion channel : mAutoBlocked) {
+            result.add(channel.channelId);
+        }
+        return result;
+    }
+
+    /**
+     * The user unblocked an auto-blocked channel: never auto-block it again.
+     */
+    public synchronized void undoAutoBlock(String channelId) {
+        for (int i = mAutoBlocked.size() - 1; i >= 0; i--) {
+            if (mAutoBlocked.get(i).channelId.equals(channelId)) {
+                mAutoBlocked.remove(i);
+            }
+        }
+        mDismissed.add(channelId);
+    }
+
+    /**
+     * Auto-blocked channels that were unblocked elsewhere (e.g. Blocked channels section) count as undone.
+     */
+    public synchronized void reconcileAutoBlocked(Set<String> blockedIds) {
+        for (String id : getAutoBlockedIds()) {
+            if (!blockedIds.contains(id)) {
+                undoAutoBlock(id);
+            }
+        }
+    }
+
     public synchronized void clear() {
         mSeen.clear();
         mPending.clear();
@@ -198,6 +239,7 @@ public class ChannelStore {
         mVectors.clear();
         mDismissed.clear();
         mSuggestions.clear();
+        mAutoBlocked.clear();
         mSeenDirty = true;
     }
 
@@ -248,13 +290,8 @@ public class ChannelStore {
                 out.writeUTF(id);
             }
 
-            out.writeInt(mSuggestions.size());
-            for (Suggestion suggestion : mSuggestions) {
-                out.writeUTF(suggestion.channelId);
-                writeNullableUTF(out, suggestion.channelName);
-                out.writeFloat(suggestion.score);
-                writeNullableUTF(out, suggestion.closestBlockedName);
-            }
+            writeSuggestions(out, mSuggestions);
+            writeSuggestions(out, mAutoBlocked);
         } catch (IOException e) {
             tmp.delete();
             return;
@@ -303,12 +340,27 @@ public class ChannelStore {
                 mDismissed.add(in.readUTF());
             }
 
-            for (int i = in.readInt(); i > 0; i--) {
-                mSuggestions.add(new Suggestion(in.readUTF(), readNullableUTF(in), in.readFloat(), readNullableUTF(in)));
-            }
+            readSuggestions(in, mSuggestions);
+            readSuggestions(in, mAutoBlocked);
         } catch (IOException e) {
             // Corrupted: start over, it's only a cache
             clear();
+        }
+    }
+
+    private static void writeSuggestions(DataOutputStream out, List<Suggestion> suggestions) throws IOException {
+        out.writeInt(suggestions.size());
+        for (Suggestion suggestion : suggestions) {
+            out.writeUTF(suggestion.channelId);
+            writeNullableUTF(out, suggestion.channelName);
+            out.writeFloat(suggestion.score);
+            writeNullableUTF(out, suggestion.closestBlockedName);
+        }
+    }
+
+    private static void readSuggestions(DataInputStream in, List<Suggestion> suggestions) throws IOException {
+        for (int i = in.readInt(); i > 0; i--) {
+            suggestions.add(new Suggestion(in.readUTF(), readNullableUTF(in), in.readFloat(), readNullableUTF(in)));
         }
     }
 

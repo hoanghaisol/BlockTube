@@ -14,8 +14,11 @@ import java.util.Map;
  * topics). A dismissed channel that is closer than every blocked one vetoes the candidate.
  */
 public class SimilarityScorer {
-    /** Centered cosine; related channels scored 0.09-0.29, unrelated ones were negative */
-    public static final float MIN_SCORE = 0.08f;
+    /**
+     * Centered cosine. Emulator data: same-topic channels 0.11-0.62, wrong matches up to 0.09.
+     * Suggestions may be auto-blocked, so err on the side of missing a channel.
+     */
+    public static final float MIN_SCORE = 0.12f;
     public static final int MAX_RESULTS = 10;
 
     public static class Result {

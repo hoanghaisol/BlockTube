@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.liskovsoft.sharedutils.helpers.Helpers;
 import com.liskovsoft.smartyoutubetv2.common.prefs.AppPrefs.ProfileChangeListener;
+import com.liskovsoft.smartyoutubetv2.common.utils.PinHelper;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 
 import java.util.ArrayList;
@@ -20,12 +21,10 @@ import java.util.TreeSet;
 
 public class BlockedChannelData implements ProfileChangeListener {
     private static final String BLOCKED_CHANNEL_DATA = "blocked_channel_data";
-    private static final long UNLOCK_TIMEOUT_MS = 5 * 60 * 1_000;
     @SuppressLint("StaticFieldLeak")
     private static BlockedChannelData sInstance;
     private final AppPrefs mPrefs;
     private final Context mContext;
-    private long mUnlockedUntilMs;
     private final TreeSet<Channel> mChannels =
             new TreeSet<>((channel1, channel2) -> {
                 // Sort by name, but keep different channels with the same name apart
@@ -193,11 +192,7 @@ public class BlockedChannelData implements ProfileChangeListener {
      * Viewing and unblocking are protected by the settings password (if set)
      */
     public boolean isLocked() {
-        return GeneralData.instance(mContext).getSettingsPassword() != null && System.currentTimeMillis() > mUnlockedUntilMs;
-    }
-
-    public void unlock() {
-        mUnlockedUntilMs = System.currentTimeMillis() + UNLOCK_TIMEOUT_MS;
+        return PinHelper.isLocked(mContext);
     }
 
     /**

@@ -33,8 +33,7 @@ import com.liskovsoft.smartyoutubetv2.common.prefs.BlockedChannelData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.GeneralData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.MainUIData;
 import com.liskovsoft.smartyoutubetv2.common.utils.AppDialogUtil;
-import com.liskovsoft.smartyoutubetv2.common.utils.SimpleEditDialog;
-import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
+import com.liskovsoft.smartyoutubetv2.common.utils.PinHelper;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -498,22 +497,9 @@ public class VideoMenuPresenter extends BaseMenuPresenter {
 
                     mDialogPresenter.closeDialog();
 
-                    // Unblock is protected by the settings password (if set)
-                    String password = GeneralData.instance(getContext()).getSettingsPassword();
-
-                    if (isBlocked && blockedChannelData.isLocked()) {
-                        SimpleEditDialog.showPassword(
-                                getContext(),
-                                getContext().getString(R.string.enter_settings_password),
-                                null,
-                                newValue -> {
-                                    if (Utils.passwordMatch(password, newValue)) {
-                                        blockedChannelData.unlock();
-                                        applyChange.run();
-                                        return true;
-                                    }
-                                    return false;
-                                });
+                    // Unblock is protected by the PIN (if set)
+                    if (isBlocked) {
+                        PinHelper.check(getContext(), applyChange);
                     } else {
                         applyChange.run();
                     }

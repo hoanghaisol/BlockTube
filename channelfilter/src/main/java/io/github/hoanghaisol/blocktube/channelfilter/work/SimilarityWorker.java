@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,12 @@ public class SimilarityWorker extends Worker {
         }
 
         ChannelStore store = filter.getStore();
-        Map<String, String> blocked = host.getBlockedChannels();
+        Map<String, String> allBlocked = host.getBlockedChannels();
+        store.reconcileAutoBlocked(allBlocked.keySet());
+
+        // Examples are the channels the user blocked; auto-blocked ones would make blocks chain
+        Map<String, String> blocked = new LinkedHashMap<>(allBlocked);
+        blocked.keySet().removeAll(store.getAutoBlockedIds());
         if (blocked.isEmpty()) {
             store.setSuggestions(new ArrayList<>());
             store.save();
@@ -85,7 +91,7 @@ public class SimilarityWorker extends Worker {
         Set<String> dismissed = store.getDismissed();
 
         Set<String> candidates = new LinkedHashSet<>(seen.keySet());
-        candidates.removeAll(blocked.keySet());
+        candidates.removeAll(allBlocked.keySet());
         candidates.removeAll(dismissed);
 
         // Blocked first: without them nothing can be scored
@@ -105,6 +111,9 @@ public class SimilarityWorker extends Worker {
 
         store.retainVectors(all);
         rank(store, blocked, dismissed, candidates, seen);
+        if (filter.isAutoBlock()) {
+            autoBlock(filter);
+        }
         store.save();
         filter.notifySuggestions();
 
@@ -182,6 +191,22 @@ public class SimilarityWorker extends Worker {
         }
 
         return false;
+    }
+
+    private static void autoBlock(ChannelFilter filter) {
+        ChannelStore store = filter.getStore();
+        List<Suggestion> suggestions = store.getSuggestions();
+        if (suggestions.isEmpty()) {
+            return;
+        }
+
+        for (Suggestion suggestion : suggestions) {
+            filter.getHost().blockChannel(suggestion.channelId, suggestion.channelName);
+        }
+        store.addAutoBlocked(suggestions);
+        store.setSuggestions(new ArrayList<>());
+        filter.notifyAutoBlocked(suggestions);
+        Log.i(TAG, "Auto-blocked " + suggestions.size() + " channels");
     }
 
     private static String profile(String name, List<String> titles) {

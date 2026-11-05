@@ -22,6 +22,7 @@ import com.liskovsoft.sharedutils.helpers.MessageHelpers;
 import com.liskovsoft.sharedutils.prefs.GlobalPreferences;
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService;
 import com.liskovsoft.smartyoutubetv2.common.prefs.BlockedChannelData;
+import com.liskovsoft.smartyoutubetv2.common.prefs.KeywordFilterData;
 import com.liskovsoft.smartyoutubetv2.common.prefs.PlayerTweaksData;
 import com.liskovsoft.googlecommon.common.helpers.ServiceHelper;
 import com.liskovsoft.googlecommon.common.helpers.YouTubeHelper;
@@ -905,12 +906,13 @@ public final class Video {
     }
 
     private static boolean isBlocked(MediaItem item, BlockedChannelData blockedChannelData) {
-        if (blockedChannelData.isEmpty()) {
+        Video video = Video.from(item);
+        if (video == null) {
             return false;
         }
 
-        Video video = Video.from(item);
-        return video != null && blockedChannelData.containsChannel(video.channelId, video.getAuthor());
+        return (!blockedChannelData.isEmpty() && blockedChannelData.containsChannel(video.channelId, video.getAuthor()))
+                || KeywordFilterData.instance(GlobalPreferences.context()).isVideoBlocked(video.getTitle());
     }
 
     public void markFullyViewed() {

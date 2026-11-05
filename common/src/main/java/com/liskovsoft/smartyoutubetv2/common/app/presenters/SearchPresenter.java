@@ -7,6 +7,7 @@ import com.liskovsoft.mediaserviceinterfaces.data.MediaGroup;
 import com.liskovsoft.mediaserviceinterfaces.data.SearchOptions;
 import com.liskovsoft.sharedutils.mylogger.Log;
 import com.liskovsoft.sharedutils.rx.RxHelper;
+import com.liskovsoft.sharedutils.helpers.MessageHelpers;
 import com.liskovsoft.smartyoutubetv2.common.R;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
 import com.liskovsoft.smartyoutubetv2.common.app.models.data.VideoGroup;
@@ -17,6 +18,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.search.vineyard.Tag;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.base.BasePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.VideoActionPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.dialogs.menu.VideoMenuPresenter;
+import com.liskovsoft.smartyoutubetv2.common.prefs.KeywordFilterData;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.interfaces.VideoGroupPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.views.SearchView;
 import com.liskovsoft.smartyoutubetv2.common.misc.BrowseProcessorManager;
@@ -176,6 +178,15 @@ public class SearchPresenter extends BasePresenter<SearchView> implements VideoG
         Log.d(TAG, "Start search for '%s'", searchText);
 
         disposeActions();
+
+        // BlockTube: a blocked keyword gives no results
+        if (KeywordFilterData.instance(getContext()).isSearchBlocked(searchText)) {
+            getView().clearSearch();
+            getView().showProgressBar(false);
+            MessageHelpers.showMessage(getContext(), R.string.search_no_results);
+            return;
+        }
+
         getView().showProgressBar(true);
 
         ContentService contentService = getContentService();

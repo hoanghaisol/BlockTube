@@ -50,8 +50,6 @@ New module `:channelfilter` (no upstream code). Upstream touch points:
 | `common/build.gradle` | `api project(':channelfilter')` | Bridge lives in `common`. |
 | `common/.../models/data/VideoGroup.java` | `add()`: call `ChannelFilterBridge.onVideoSeen(video)` after the block filter | Collect channels seen while browsing (cheap, in-memory LRU). |
 | `common/.../misc/ChannelFilterBridge.java` | New file | Only upstream-side class that talks to the module: RSS titles, block list, playback state; listens to `BlockedChannelData`. |
-| `common/.../presenters/settings/GeneralSettingsPresenter.java` | `show()`: one line `SimilarChannelsPresenter...appendSettings(...)` | Feature switch + "Review similar channels" button at the end of Settings → General. |
-| `common/.../presenters/settings/SimilarChannelsPresenter.java` | New file | Settings category and review dialog (Block / Ignore / Open channel per suggestion). |
 | `common/src/main/res/values{,-vi}/strings_blocktube.xml` | New files | BlockTube strings kept out of upstream `strings.xml`. |
 
 ## Block from search results
@@ -59,3 +57,26 @@ New module `:channelfilter` (no upstream code). Upstream touch points:
 | File | Function | Change | Reason |
 |---|---|---|---|
 | `common/.../presenters/dialogs/menu/VideoMenuPresenter.java` | `appendBlockChannelButton` | When the video has no channel id (search results), block by name immediately, then resolve the id via `loadMetadata` and re-add the entry with the id. | Search result videos carry no channel id, so blocks from Search were name-only (and invisible to the suggester). |
+
+## Content filter tile, keywords, PIN (feedback round 1)
+
+| File | Function | Change | Reason |
+|---|---|---|---|
+| `common/.../misc/AppDataSourceManager.java` | `getSettingItems` | First tile "Content filter" → `ContentFilterSettingsPresenter` | One place for blocked channels, keywords, AI, PIN, update check. |
+| `common/.../presenters/settings/ContentFilterSettingsPresenter.java` | New file | Blocked channels (unblock), search/video keywords, AI switch + auto-block switch + review + "Blocked by AI" (unblock), PIN set/change/remove, check for updates. | |
+| `common/.../prefs/KeywordFilterData.java` | New file | Profile-scoped search and video keyword lists (part of the backup). | |
+| `channelfilter/.../keyword/KeywordMatcher.java` | New file | Case- and diacritics-insensitive, whole-word/phrase match. | Typing accents on a TV is hard. |
+| `common/.../models/data/VideoGroup.java` | `add()`, `isKeywordBlocked` (new) | Drop videos whose title has a blocked keyword. | Video keyword filter everywhere. |
+| `common/.../models/data/Video.java` | `isBlocked` | Autoplay next also skips keyword-blocked titles. | |
+| `common/.../presenters/SearchPresenter.java` | `loadSearchResult(String)` | Blocked keyword in the query → clear results, "No results". | Search keyword filter. |
+| `common/.../models/search/MediaServiceSearchTagProvider.java` | `search`, `filterBlocked` (new) | Drop search suggestions containing a blocked keyword. | |
+| `common/.../utils/PinHelper.java` | New file | 4-digit PIN check/set, one correct entry unlocks for 5 minutes; legacy text passwords still accepted. | |
+| `common/.../utils/SimpleEditDialog.java` | `showPin` (new) | Number pad, masked, max 4 digits. | |
+| `smarttubetv/.../ui/browse/settings/SettingsGridFragment.java` | `ItemViewClickedListener` | `PinHelper.check` instead of the text password dialog. | PIN protects all Settings. |
+| `common/.../presenters/settings/GeneralSettingsPresenter.java` | `showPasswordDialog` | Set the settings password via `PinHelper.showSetPin`. | |
+| `common/.../presenters/dialogs/menu/VideoMenuPresenter.java` | `appendBlockChannelButton` | Unblock uses `PinHelper.check`. | |
+| `common/.../prefs/BlockedChannelData.java` | `isLocked` | Delegates to `PinHelper` (shared unlock window). | |
+| `common/.../models/errors/BlockedChannelsLockedError.java` | `onAction` | `PinHelper.check`. | |
+| `common/.../utils/Utils.java` | `KNOWN_PACKAGES` | Add `io.github.hoanghaisol.blocktube`. | Full About screen (with update settings) and GDrive restore across installs. |
+
+AI auto-block: on by default. Only channels the user blocked are used as examples, so auto-blocks never chain. Unblocking an auto-blocked channel (anywhere) dismisses it for good.

@@ -1,14 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="similar_channels_category">Kênh tương tự (AI)</string>
-    <string name="similar_channels_enable">Gợi ý kênh giống kênh đã chặn</string>
-    <string name="similar_channels_enable_desc">Chạy ngay trên thiết bị, chỉ khi không phát video. Bạn xác nhận từng kênh trước khi chặn.</string>
+    <string name="content_filter_title">Chặn nội dung</string>
+    <string name="content_filter_blocked_channels">Kênh đã chặn (%d)</string>
+    <string name="content_filter_unblock">Bỏ chặn: %s</string>
+    <string name="content_filter_empty">Trống</string>
+    <string name="content_filter_search_keywords">Từ khóa tìm kiếm bị chặn (%d)</string>
+    <string name="content_filter_video_keywords">Từ khóa video bị chặn (%d)</string>
+    <string name="content_filter_add_keyword">+ Thêm từ khóa</string>
+    <string name="content_filter_remove_keyword">Xóa: %s</string>
+    <string name="search_no_results">Không có kết quả</string>
+
+    <string name="similar_channels_category">AI: kênh tương tự</string>
+    <string name="similar_channels_enable">Tìm kênh giống kênh đã chặn</string>
+    <string name="similar_channels_enable_desc">Chạy ngay trên thiết bị, chỉ khi không phát video.</string>
+    <string name="similar_channels_auto_block">Tự động chặn</string>
+    <string name="similar_channels_auto_block_desc">Tắt: bạn tự duyệt từng gợi ý.</string>
     <string name="similar_channels_confirm_download">Tải mô hình AI (khoảng 120 MB)?</string>
-    <string name="similar_channels_downloading">Đang tải mô hình AI. Gợi ý sẽ xuất hiện sau khi bạn chặn một kênh.</string>
+    <string name="similar_channels_downloading">Đang tải mô hình AI. AI bắt đầu làm việc sau khi bạn chặn một kênh.</string>
     <string name="similar_channels_show">Xem kênh tương tự (%d)</string>
+    <string name="similar_channels_auto_blocked_list">AI đã chặn (%d)</string>
+    <string name="similar_channels_auto_blocked">AI đã chặn %d kênh tương tự. Xem tại Cài đặt → Chặn nội dung</string>
     <string name="similar_channels_title">Kênh tương tự</string>
     <string name="similar_channels_like">%1$s (giống %2$s)</string>
     <string name="similar_channels_ignore">Bỏ qua (không gợi ý lại)</string>
     <string name="similar_channels_none">Chưa có gợi ý. Gợi ý xuất hiện sau khi bạn chặn một kênh.</string>
-    <string name="similar_channels_found">Có %d kênh tương tự cần xem: Cài đặt → Chung → Kênh tương tự</string>
+    <string name="similar_channels_found">Có %d kênh tương tự cần xem: Cài đặt → Chặn nội dung</string>
+
+    <string name="pin_set">Đặt mã PIN</string>
+    <string name="pin_change">Đổi mã PIN</string>
+    <string name="pin_remove">Xóa mã PIN</string>
+    <string name="pin_enter">Nhập mã PIN</string>
+    <string name="pin_new">Mã PIN mới (4 số)</string>
+    <string name="pin_confirm">Nhập lại mã PIN</string>
+    <string name="pin_must_be_4_digits">Mã PIN phải gồm 4 chữ số</string>
+    <string name="pin_mismatch">Hai lần nhập không khớp</string>
+    <string name="pin_wrong">Sai mã PIN</string>
+    <string name="pin_saved">Đã lưu mã PIN. Mã này bảo vệ Cài đặt và danh sách chặn.</string>
+    <string name="pin_removed">Đã xóa mã PIN</string>
 </resources>

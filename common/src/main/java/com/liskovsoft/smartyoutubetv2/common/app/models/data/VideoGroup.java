@@ -10,6 +10,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoSt
 import com.liskovsoft.smartyoutubetv2.common.app.models.playback.service.VideoStateService.State;
 import com.liskovsoft.smartyoutubetv2.common.misc.ChannelFilterBridge;
 import com.liskovsoft.smartyoutubetv2.common.prefs.BlockedChannelData;
+import com.liskovsoft.smartyoutubetv2.common.prefs.KeywordFilterData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -455,7 +456,7 @@ public class VideoGroup {
     }
 
     public void add(int idx, Video video) {
-        if (video == null || video.isEmpty() || isChannelBlocked(video) || isWatchedSuggestion(video)) {
+        if (video == null || video.isEmpty() || isChannelBlocked(video) || isKeywordBlocked(video) || isWatchedSuggestion(video)) {
             return;
         }
 
@@ -478,6 +479,13 @@ public class VideoGroup {
 
         // BlockTube: collect channels for the similar channels suggester
         ChannelFilterBridge.onVideoSeen(video);
+    }
+
+    /**
+     * BlockTube: hide videos whose title contains a blocked keyword
+     */
+    private boolean isKeywordBlocked(Video video) {
+        return !video.isChapter && KeywordFilterData.instance(GlobalPreferences.context()).isVideoBlocked(video.getTitle());
     }
 
     private boolean isChannelBlocked(Video video) {
