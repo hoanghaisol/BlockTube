@@ -2,6 +2,7 @@ package com.liskovsoft.smartyoutubetv2.tv.ui.contentfilter;
 
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,6 +72,17 @@ public class ContentFilterActivity extends LeanbackActivity implements ContentFi
     public void finish() {
         super.finish();
         finishReally();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        // Left from the list goes back to the open section, not to the menu entry next to the row
+        if (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT
+                && mListView.getFocusedChild() != null) {
+            focusMenu(mSection);
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @Override

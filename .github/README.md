@@ -17,6 +17,8 @@ Unofficial fork of [yuliskov/SmartTube](https://github.com/yuliskov/SmartTube).
 - Optional on-device AI (Android 7+): finds channels similar to the ones you blocked and blocks
   them automatically (or lets you review them). Model (~120 MB) is downloaded on first use.
 
+Giới thiệu tiếng Việt: [docs/GIOI_THIEU.md](../docs/GIOI_THIEU.md)
+
 Installs side by side with SmartTube (package `io.github.hoanghaisol.blocktube`).
 Upstream code changes are listed in [PATCHES.md](../PATCHES.md).
 
