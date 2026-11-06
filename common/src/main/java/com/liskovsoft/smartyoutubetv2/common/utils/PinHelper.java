@@ -24,6 +24,14 @@ public class PinHelper {
     }
 
     /**
+     * A text password from an older version is still accepted, but should be replaced by a PIN.
+     */
+    public static boolean isLegacyPassword(Context context) {
+        String password = GeneralData.instance(context).getSettingsPassword();
+        return password != null && !isPin(password);
+    }
+
+    /**
      * A correct PIN unlocks Settings, the block list and unblocking for a few minutes (memory only).
      */
     public static boolean isLocked(Context context) {
@@ -48,6 +56,9 @@ public class PinHelper {
             if (Utils.passwordMatch(password, newValue)) {
                 unlock();
                 onSuccess.run();
+                if (!isPin(password)) {
+                    MessageHelpers.showLongMessage(context, R.string.pin_replace_legacy);
+                }
                 return true;
             }
             MessageHelpers.showMessage(context, R.string.pin_wrong);
@@ -62,9 +73,10 @@ public class PinHelper {
     }
 
     /**
-     * Asks for a new PIN twice. {@code onSet} receives the PIN.
+     * Asks for a new PIN twice, saves it right away (replacing any old password), then calls
+     * {@code onSaved}. Saving first: a problem in the caller's UI must not lose the PIN.
      */
-    public static void showSetPin(Context context, SetListener onSet) {
+    public static void showSetPin(Context context, Runnable onSaved) {
         SimpleEditDialog.showPin(context, context.getString(R.string.pin_new), first -> {
             if (!isPin(first)) {
                 MessageHelpers.showMessage(context, R.string.pin_must_be_4_digits);
@@ -76,16 +88,17 @@ public class PinHelper {
                     MessageHelpers.showMessage(context, R.string.pin_mismatch);
                     return false;
                 }
-                onSet.onSet(first);
-                GeneralData.instance(context).persistNow(); // don't lose the PIN to the delayed save
+                GeneralData generalData = GeneralData.instance(context);
+                generalData.setSettingsPassword(first);
+                generalData.persistNow(); // GeneralData saves with a delay otherwise
+                unlock();
                 MessageHelpers.showMessage(context, R.string.pin_saved);
+                if (onSaved != null) {
+                    onSaved.run();
+                }
                 return true;
             });
             return true;
         });
-    }
-
-    public interface SetListener {
-        void onSet(String pin);
     }
 }

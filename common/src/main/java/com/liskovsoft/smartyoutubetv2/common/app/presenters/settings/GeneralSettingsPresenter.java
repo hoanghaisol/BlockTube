@@ -777,12 +777,7 @@ public class GeneralSettingsPresenter extends BasePresenter<Void> {
 
         settingsPresenter.closeDialog();
         // BlockTube: 4-digit PIN
-        PinHelper.showSetPin(getContext(), pin -> {
-            mGeneralData.setSettingsPassword(pin);
-            if (onSuccess != null) {
-                onSuccess.run();
-            }
-        });
+        PinHelper.showSetPin(getContext(), onSuccess);
     }
 
     private void showMasterPasswordDialog(AppDialogPresenter settingsPresenter, Runnable onSuccess) {

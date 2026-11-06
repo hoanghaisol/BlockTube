@@ -68,4 +68,7 @@
     <string name="similar_channels_level_strict_desc">Blocks only near-identical channels. Fewest mistakes.</string>
     <string name="similar_channels_level_medium_desc">Balanced. Less similar channels wait for your review.</string>
     <string name="similar_channels_level_broad_desc">Blocks the most, makes the most mistakes.</string>
+    <string name="pin_replace">Set a 4-digit PIN (replaces the old password)</string>
+    <string name="pin_replace_desc">An old text password is still in use. Replace it with a PIN: one code for all Settings.</string>
+    <string name="pin_replace_legacy">Tip: replace the old text password with a 4-digit PIN in Settings → Content filter → PIN and updates</string>
 </resources>

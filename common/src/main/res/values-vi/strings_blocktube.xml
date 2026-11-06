@@ -67,4 +67,7 @@
     <string name="similar_channels_level_strict_desc">Chỉ chặn kênh gần như cùng loại. Ít chặn nhầm nhất.</string>
     <string name="similar_channels_level_medium_desc">Cân bằng. Kênh ít giống hơn chờ bạn duyệt.</string>
     <string name="similar_channels_level_broad_desc">Chặn nhiều nhất, dễ chặn nhầm nhất.</string>
+    <string name="pin_replace">Đặt mã PIN 4 số (thay mật khẩu cũ)</string>
+    <string name="pin_replace_desc">Đang dùng mật khẩu cũ dạng chữ. Hãy thay bằng mã PIN: một mã duy nhất cho toàn bộ Cài đặt.</string>
+    <string name="pin_replace_legacy">Mẹo: thay mật khẩu chữ cũ bằng mã PIN 4 số tại Cài đặt → Chặn nội dung → Mã PIN và cập nhật</string>
 </resources>

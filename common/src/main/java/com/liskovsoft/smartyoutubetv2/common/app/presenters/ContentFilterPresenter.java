@@ -365,12 +365,10 @@ public class ContentFilterPresenter extends BasePresenter<ContentFilterView> {
         boolean isSet = PinHelper.isSet(getContext());
         List<Item> items = new ArrayList<>();
 
-        items.add(new Item(str(isSet ? R.string.pin_change : R.string.pin_set), str(R.string.content_filter_pin_desc), null, false, () ->
-                PinHelper.showSetPin(getContext(), pin -> {
-                    generalData.setSettingsPassword(pin);
-                    PinHelper.unlock();
-                    update();
-                })));
+        boolean isLegacy = PinHelper.isLegacyPassword(getContext());
+        items.add(new Item(str(isLegacy ? R.string.pin_replace : isSet ? R.string.pin_change : R.string.pin_set),
+                str(isLegacy ? R.string.pin_replace_desc : R.string.content_filter_pin_desc), null, isLegacy, () ->
+                PinHelper.showSetPin(getContext(), this::update)));
 
         if (isSet) {
             items.add(new Item(str(R.string.pin_remove), null, null, false, () -> {
