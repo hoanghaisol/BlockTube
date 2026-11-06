@@ -13,6 +13,8 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.BrowsePresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.views.AddDeviceView;
 import com.liskovsoft.smartyoutubetv2.common.app.views.AppDialogView;
 import com.liskovsoft.smartyoutubetv2.common.app.views.BrowseView;
+import com.liskovsoft.smartyoutubetv2.common.app.views.ContentFilterView;
+import com.liskovsoft.smartyoutubetv2.tv.ui.contentfilter.ContentFilterActivity;
 import com.liskovsoft.smartyoutubetv2.common.app.views.ChannelUploadsView;
 import com.liskovsoft.smartyoutubetv2.common.app.views.ChannelView;
 import com.liskovsoft.smartyoutubetv2.common.app.views.PlaybackView;
@@ -114,6 +116,7 @@ public class MainApplication extends MultiDexApplication implements Configuratio
         viewManager.register(ChannelView.class, ChannelActivity.class, BrowseActivity.class);
         viewManager.register(ChannelUploadsView.class, ChannelUploadsActivity.class, BrowseActivity.class);
         viewManager.register(WebBrowserView.class, WebBrowserActivity.class, BrowseActivity.class);
+        viewManager.register(ContentFilterView.class, ContentFilterActivity.class, BrowseActivity.class); // BlockTube
     }
 
     /**

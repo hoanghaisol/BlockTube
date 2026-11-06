@@ -62,8 +62,7 @@ New module `:channelfilter` (no upstream code). Upstream touch points:
 
 | File | Function | Change | Reason |
 |---|---|---|---|
-| `common/.../misc/AppDataSourceManager.java` | `getSettingItems` | First tile "Content filter" → `ContentFilterSettingsPresenter` | One place for blocked channels, keywords, AI, PIN, update check. |
-| `common/.../presenters/settings/ContentFilterSettingsPresenter.java` | New file | Blocked channels (unblock), search/video keywords, AI switch + auto-block switch + review + "Blocked by AI" (unblock), PIN set/change/remove, check for updates. | |
+| `common/.../misc/AppDataSourceManager.java` | `getSettingItems` | First tile "Content filter" → `ContentFilterPresenter.open()` (full screen, see below) | One place for blocked channels, keywords, AI, PIN, update check. |
 | `common/.../prefs/KeywordFilterData.java` | New file | Profile-scoped search and video keyword lists (part of the backup). | |
 | `channelfilter/.../keyword/KeywordMatcher.java` | New file | Case- and diacritics-insensitive, whole-word/phrase match. | Typing accents on a TV is hard. |
 | `common/.../models/data/VideoGroup.java` | `add()`, `isKeywordBlocked` (new) | Drop videos whose title has a blocked keyword. | Video keyword filter everywhere. |
@@ -80,3 +79,16 @@ New module `:channelfilter` (no upstream code). Upstream touch points:
 | `common/.../utils/Utils.java` | `KNOWN_PACKAGES` | Add `io.github.hoanghaisol.blocktube`. | Full About screen (with update settings) and GDrive restore across installs. |
 
 AI auto-block: on by default. Only channels the user blocked are used as examples, so auto-blocks never chain. Unblocking an auto-blocked channel (anywhere) dismisses it for good.
+
+## Full screen Content filter (feedback round 2)
+
+| File | Change | Reason |
+|---|---|---|
+| `common/.../app/views/ContentFilterView.java` | New view interface | |
+| `common/.../app/presenters/ContentFilterPresenter.java` | New presenter: menu sections, list items, actions (unblock, keywords, AI settings incl. level, review, PIN, update). Actions refresh the screen instead of closing it. Leaving the screen marks AI blocks as read. | Unblock many channels in a row; read/unread for AI blocks. Replaces the settings-panel `ContentFilterSettingsPresenter`. |
+| `smarttubetv/.../ui/contentfilter/ContentFilterActivity.java`, `res/layout/content_filter*.xml`, `res/color/content_filter_*.xml`, `res/drawable/content_filter_*.xml` | New screen | Menu left, list right; focus kept on the same row after removing one. |
+| `smarttubetv/.../ui/main/MainApplication.java` | `viewManager.register(ContentFilterView.class, ContentFilterActivity.class, BrowseActivity.class)` | |
+| `smarttubetv/src/main/AndroidManifest.xml` | `ContentFilterActivity` entry | |
+| `common/.../presenters/BrowsePresenter.java` | `updateSection`: Blocked channels section always shows a "Manage blocked channels" button | The grid of channel "folders" is replaced by the list screen. |
+| `common/.../models/errors/BlockedChannelsLockedError.java` | Opens the Content filter screen (PIN checked there) | |
+| `channelfilter` | Strictness levels (very similar 0.30 / similar 0.20 / somewhat 0.12, default similar): only matches above the level are auto-blocked, the rest go to review. Auto-blocked entries have a read flag (store v4; v2/v3 files are migrated, not dropped). | Fewer wrong auto-blocks; unread marker. |

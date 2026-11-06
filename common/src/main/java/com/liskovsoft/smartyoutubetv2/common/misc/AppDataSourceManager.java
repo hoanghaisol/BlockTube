@@ -8,8 +8,8 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.AboutSettin
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.AboutSimpleSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.AccountSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.AutoFrameRateSettingsPresenter;
+import com.liskovsoft.smartyoutubetv2.common.app.presenters.ContentFilterPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.BackupSettingsPresenter;
-import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.ContentFilterSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.SponsorBlockSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.DeArrowSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.GeneralSettingsPresenter;
@@ -44,7 +44,7 @@ public class AppDataSourceManager {
 
         // BlockTube
         settingItems.add(new SettingsItem(
-                context.getString(R.string.content_filter_title), () -> ContentFilterSettingsPresenter.instance(context).show(), R.drawable.icon_blocked_channels));
+                context.getString(R.string.content_filter_title), () -> ContentFilterPresenter.instance(context).open(ContentFilterPresenter.SECTION_BLOCKED), R.drawable.icon_blocked_channels));
 
         settingItems.add(new SettingsItem(
                 context.getString(R.string.settings_accounts), () -> AccountSettingsPresenter.instance(context).show(), R.drawable.settings_account));

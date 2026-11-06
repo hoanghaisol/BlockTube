@@ -38,4 +38,34 @@
     <string name="pin_wrong">Wrong PIN</string>
     <string name="pin_saved">PIN saved. It protects Settings and the block list.</string>
     <string name="pin_removed">PIN removed</string>
+
+    <string name="content_filter_open">Manage blocked channels</string>
+    <string name="content_filter_ai_blocked_unread">Blocked by AI (%1$d, %2$d new)</string>
+    <string name="content_filter_pin_and_update">PIN and updates</string>
+    <string name="content_filter_hint_blocked">Press OK on a channel to unblock it. The screen stays open, so you can unblock several in a row.</string>
+    <string name="content_filter_hint_ai_blocked">Channels the AI blocked by itself, newest first. A dot marks the ones you haven\'t seen. Unblocked channels are never blocked again by the AI.</string>
+    <string name="content_filter_hint_ai_review">Similar, but below the auto-block level. Press OK to block, ignore or open the channel.</string>
+    <string name="content_filter_hint_search_keywords">Searches containing these words show no results. Accents and case are ignored, whole words only.</string>
+    <string name="content_filter_hint_video_keywords">Videos and playlists whose title contains these words are hidden. Accents and case are ignored, whole words only.</string>
+    <string name="content_filter_blocked_by_ai">Blocked by AI: like %s</string>
+    <string name="content_filter_blocked_by_you">Blocked by you</string>
+    <string name="content_filter_unblock_action">Unblock</string>
+    <string name="content_filter_remove_action">Remove</string>
+    <string name="content_filter_choose_action">Choose</string>
+    <string name="content_filter_unblocked">Unblocked: %s</string>
+    <string name="content_filter_like">Like %1$s · %2$d%%</string>
+    <string name="content_filter_score">Similarity %d%%</string>
+    <string name="content_filter_on">On</string>
+    <string name="content_filter_off">Off</string>
+    <string name="content_filter_pin_desc">4 digits. Protects Settings and this screen.</string>
+    <string name="similar_channels_model">AI model</string>
+    <string name="similar_channels_model_ready">Downloaded</string>
+    <string name="similar_channels_model_downloading">Downloading (about 120 MB)…</string>
+    <string name="similar_channels_level">How similar to block</string>
+    <string name="similar_channels_level_strict">Very similar</string>
+    <string name="similar_channels_level_medium">Similar</string>
+    <string name="similar_channels_level_broad">Somewhat similar</string>
+    <string name="similar_channels_level_strict_desc">Blocks only near-identical channels. Fewest mistakes.</string>
+    <string name="similar_channels_level_medium_desc">Balanced. Less similar channels wait for your review.</string>
+    <string name="similar_channels_level_broad_desc">Blocks the most, makes the most mistakes.</string>
 </resources>

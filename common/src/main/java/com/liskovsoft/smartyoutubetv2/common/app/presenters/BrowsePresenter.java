@@ -652,7 +652,8 @@ public class BrowsePresenter extends BasePresenter<BrowseView> implements Sectio
                 if (mGridMapping.containsKey(section.getId())) {
                     Observable<MediaGroup> group = mGridMapping.get(section.getId());
                     updateVideoGrid(section, group, section.isAuthOnly());
-                } else if (section.getId() == MediaGroup.TYPE_BLOCKED_CHANNELS && BlockedChannelData.instance(getContext()).isLocked()) {
+                } else if (section.getId() == MediaGroup.TYPE_BLOCKED_CHANNELS) {
+                    // BlockTube: the list lives in the Content filter screen (behind the PIN)
                     getView().showError(new BlockedChannelsLockedError(getContext()));
                     getView().showProgressBar(false);
                 } else if (mLocalGridMappings.containsKey(section.getId())) {

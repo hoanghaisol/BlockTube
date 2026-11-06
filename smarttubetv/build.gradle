@@ -165,7 +165,7 @@ android {
         }
         ststable {
             // BlockTube fork. versionCode = upstream * 100 + patch (see PATCHES.md)
-            def filterPatch = 3
+            def filterPatch = 4
             applicationId "io.github.hoanghaisol.blocktube"
             versionCode android.defaultConfig.versionCode * 100 + filterPatch
             versionName "${android.defaultConfig.versionName}-filter.${filterPatch}"

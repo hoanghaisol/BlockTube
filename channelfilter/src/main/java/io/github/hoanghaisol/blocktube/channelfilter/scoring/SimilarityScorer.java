@@ -19,7 +19,7 @@ public class SimilarityScorer {
      * Suggestions may be auto-blocked, so err on the side of missing a channel.
      */
     public static final float MIN_SCORE = 0.12f;
-    public static final int MAX_RESULTS = 10;
+    public static final int MAX_RESULTS = 20;
 
     public static class Result {
         public final String channelId;

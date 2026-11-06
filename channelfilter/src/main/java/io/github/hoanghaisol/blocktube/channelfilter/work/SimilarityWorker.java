@@ -195,18 +195,25 @@ public class SimilarityWorker extends Worker {
 
     private static void autoBlock(ChannelFilter filter) {
         ChannelStore store = filter.getStore();
-        List<Suggestion> suggestions = store.getSuggestions();
-        if (suggestions.isEmpty()) {
+        float threshold = filter.getAutoBlockThreshold();
+
+        // Similar enough for the chosen level: block. The rest stays in the review list.
+        List<Suggestion> toBlock = new ArrayList<>();
+        List<Suggestion> toReview = new ArrayList<>();
+        for (Suggestion suggestion : store.getSuggestions()) {
+            (suggestion.score >= threshold ? toBlock : toReview).add(suggestion);
+        }
+        if (toBlock.isEmpty()) {
             return;
         }
 
-        for (Suggestion suggestion : suggestions) {
+        for (Suggestion suggestion : toBlock) {
             filter.getHost().blockChannel(suggestion.channelId, suggestion.channelName);
         }
-        store.addAutoBlocked(suggestions);
-        store.setSuggestions(new ArrayList<>());
-        filter.notifyAutoBlocked(suggestions);
-        Log.i(TAG, "Auto-blocked " + suggestions.size() + " channels");
+        store.addAutoBlocked(toBlock);
+        store.setSuggestions(toReview);
+        filter.notifyAutoBlocked(toBlock);
+        Log.i(TAG, "Auto-blocked " + toBlock.size() + " channels, " + toReview.size() + " left for review");
     }
 
     private static String profile(String name, List<String> titles) {

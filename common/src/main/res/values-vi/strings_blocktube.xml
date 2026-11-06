@@ -37,4 +37,34 @@
     <string name="pin_wrong">Sai mã PIN</string>
     <string name="pin_saved">Đã lưu mã PIN. Mã này bảo vệ Cài đặt và danh sách chặn.</string>
     <string name="pin_removed">Đã xóa mã PIN</string>
+
+    <string name="content_filter_open">Quản lý kênh đã chặn</string>
+    <string name="content_filter_ai_blocked_unread">AI đã chặn (%1$d, %2$d mới)</string>
+    <string name="content_filter_pin_and_update">Mã PIN và cập nhật</string>
+    <string name="content_filter_hint_blocked">Bấm OK vào một kênh để bỏ chặn. Màn hình vẫn mở, nên có thể bỏ chặn nhiều kênh liên tiếp.</string>
+    <string name="content_filter_hint_ai_blocked">Kênh do AI tự chặn, mới nhất ở trên. Dấu chấm là kênh bạn chưa xem. Kênh đã bỏ chặn sẽ không bị AI chặn lại.</string>
+    <string name="content_filter_hint_ai_review">Kênh giống nhưng chưa tới mức tự chặn. Bấm OK để chặn, bỏ qua hoặc mở kênh.</string>
+    <string name="content_filter_hint_search_keywords">Tìm kiếm có chứa các từ này sẽ không ra kết quả. Không phân biệt dấu và hoa thường, khớp nguyên từ.</string>
+    <string name="content_filter_hint_video_keywords">Video và playlist có các từ này trong tiêu đề sẽ bị ẩn. Không phân biệt dấu và hoa thường, khớp nguyên từ.</string>
+    <string name="content_filter_blocked_by_ai">AI chặn: giống %s</string>
+    <string name="content_filter_blocked_by_you">Bạn chặn</string>
+    <string name="content_filter_unblock_action">Bỏ chặn</string>
+    <string name="content_filter_remove_action">Xóa</string>
+    <string name="content_filter_choose_action">Chọn</string>
+    <string name="content_filter_unblocked">Đã bỏ chặn: %s</string>
+    <string name="content_filter_like">Giống %1$s · %2$d%%</string>
+    <string name="content_filter_score">Độ giống %d%%</string>
+    <string name="content_filter_on">Bật</string>
+    <string name="content_filter_off">Tắt</string>
+    <string name="content_filter_pin_desc">4 chữ số. Bảo vệ Cài đặt và màn hình này.</string>
+    <string name="similar_channels_model">Mô hình AI</string>
+    <string name="similar_channels_model_ready">Đã tải</string>
+    <string name="similar_channels_model_downloading">Đang tải (khoảng 120 MB)…</string>
+    <string name="similar_channels_level">Mức độ chặn</string>
+    <string name="similar_channels_level_strict">Rất giống</string>
+    <string name="similar_channels_level_medium">Giống</string>
+    <string name="similar_channels_level_broad">Hơi giống</string>
+    <string name="similar_channels_level_strict_desc">Chỉ chặn kênh gần như cùng loại. Ít chặn nhầm nhất.</string>
+    <string name="similar_channels_level_medium_desc">Cân bằng. Kênh ít giống hơn chờ bạn duyệt.</string>
+    <string name="similar_channels_level_broad_desc">Chặn nhiều nhất, dễ chặn nhầm nhất.</string>
 </resources>

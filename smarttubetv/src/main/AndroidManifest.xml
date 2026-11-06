@@ -218,6 +218,13 @@
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|layoutDirection"
             android:screenOrientation="unspecified"/>
 
+        <!-- BlockTube: Content filter -->
+        <activity
+            android:name="com.liskovsoft.smartyoutubetv2.tv.ui.contentfilter.ContentFilterActivity"
+            android:launchMode="singleInstance"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|layoutDirection"
+            android:screenOrientation="unspecified"/>
+
         <!-- BEGIN Launchers (used inside tvQuickActions. Don't rename them or move!) -->
 
         <activity

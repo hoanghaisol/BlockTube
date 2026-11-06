@@ -27,7 +27,7 @@ import java.util.Set;
  * Thread-safe; every method locks the store.
  */
 public class ChannelStore {
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
     private static final int MAX_SEEN = 500;
     private static final int MAX_PENDING = 100;
 
@@ -36,6 +36,8 @@ public class ChannelStore {
         public final String channelName;
         public final float score;
         public final String closestBlockedName;
+        /** Auto-blocked list: the user has seen it in the Content filter screen */
+        public boolean read;
 
         public Suggestion(String channelId, String channelName, float score, String closestBlockedName) {
             this.channelId = channelId;
@@ -201,6 +203,22 @@ public class ChannelStore {
         return new ArrayList<>(mAutoBlocked);
     }
 
+    public synchronized int getUnreadAutoBlockedCount() {
+        int count = 0;
+        for (Suggestion channel : mAutoBlocked) {
+            if (!channel.read) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public synchronized void markAutoBlockedRead() {
+        for (Suggestion channel : mAutoBlocked) {
+            channel.read = true;
+        }
+    }
+
     public synchronized Set<String> getAutoBlockedIds() {
         Set<String> result = new HashSet<>();
         for (Suggestion channel : mAutoBlocked) {
@@ -309,7 +327,10 @@ public class ChannelStore {
         }
 
         try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
-            if (in.readInt() != VERSION) {
+            // Older files are read, not dropped: the auto-blocked list must survive app updates,
+            // otherwise auto-blocked channels would turn into examples and blocks would chain
+            int version = in.readInt();
+            if (version < 2 || version > VERSION) {
                 return;
             }
 
@@ -340,8 +361,10 @@ public class ChannelStore {
                 mDismissed.add(in.readUTF());
             }
 
-            readSuggestions(in, mSuggestions);
-            readSuggestions(in, mAutoBlocked);
+            readSuggestions(in, mSuggestions, version);
+            if (version >= 3) {
+                readSuggestions(in, mAutoBlocked, version);
+            }
         } catch (IOException e) {
             // Corrupted: start over, it's only a cache
             clear();
@@ -355,12 +378,15 @@ public class ChannelStore {
             writeNullableUTF(out, suggestion.channelName);
             out.writeFloat(suggestion.score);
             writeNullableUTF(out, suggestion.closestBlockedName);
+            out.writeBoolean(suggestion.read);
         }
     }
 
-    private static void readSuggestions(DataInputStream in, List<Suggestion> suggestions) throws IOException {
+    private static void readSuggestions(DataInputStream in, List<Suggestion> suggestions, int version) throws IOException {
         for (int i = in.readInt(); i > 0; i--) {
-            suggestions.add(new Suggestion(in.readUTF(), readNullableUTF(in), in.readFloat(), readNullableUTF(in)));
+            Suggestion suggestion = new Suggestion(in.readUTF(), readNullableUTF(in), in.readFloat(), readNullableUTF(in));
+            suggestion.read = version < 4 || in.readBoolean(); // no flag before v4: treat as seen
+            suggestions.add(suggestion);
         }
     }
 

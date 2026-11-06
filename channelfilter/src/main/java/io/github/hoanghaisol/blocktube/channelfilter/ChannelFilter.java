@@ -36,6 +36,12 @@ public class ChannelFilter {
     private static final String PREFS = "channelfilter";
     private static final String KEY_ENABLED = "enabled";
     private static final String KEY_AUTO_BLOCK = "auto_block";
+    private static final String KEY_LEVEL = "level";
+    public static final int LEVEL_STRICT = 0;
+    public static final int LEVEL_MEDIUM = 1;
+    public static final int LEVEL_BROAD = 2;
+    /** Auto-block thresholds (centered cosine) per level; below them channels wait for review */
+    private static final float[] LEVEL_THRESHOLDS = {0.30f, 0.20f, 0.12f};
     private static final String WORK_NAME = "channelfilter_similar";
     private static final long SAVE_DELAY_MS = 30_000;
     private static final long STARTUP_DELAY_MS = 60_000;
@@ -163,6 +169,33 @@ public class ChannelFilter {
         if (mEnabled && autoBlock) {
             scheduleWork(0, ExistingWorkPolicy.REPLACE); // Handle pending suggestions
         }
+    }
+
+    /**
+     * How similar a channel must be to be blocked automatically.
+     */
+    public int getLevel() {
+        return mPrefs.getInt(KEY_LEVEL, LEVEL_MEDIUM);
+    }
+
+    public void setLevel(int level) {
+        mPrefs.edit().putInt(KEY_LEVEL, level).apply();
+        if (mEnabled) {
+            scheduleWork(0, ExistingWorkPolicy.REPLACE);
+        }
+    }
+
+    public float getAutoBlockThreshold() {
+        return LEVEL_THRESHOLDS[Math.max(0, Math.min(LEVEL_THRESHOLDS.length - 1, getLevel()))];
+    }
+
+    public int getUnreadAutoBlockedCount() {
+        return mEnabled ? mStore.getUnreadAutoBlockedCount() : 0;
+    }
+
+    public void markAutoBlockedRead() {
+        mStore.markAutoBlockedRead();
+        mIoExecutor.execute(mStore::save);
     }
 
     public List<Suggestion> getAutoBlocked() {
