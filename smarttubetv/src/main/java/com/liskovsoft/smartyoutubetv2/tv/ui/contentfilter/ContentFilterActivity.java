@@ -222,9 +222,17 @@ public class ContentFilterActivity extends LeanbackActivity implements ContentFi
             view.findViewById(R.id.content_filter_menu_dot).setVisibility(entry.hasUnread ? View.VISIBLE : View.INVISIBLE);
             view.setActivated(entry.section == mSelected);
             view.setOnFocusChangeListener((v, hasFocus) -> {
-                if (hasFocus && entry.section != mSection) {
-                    showSection(entry.section);
+                // Older Android (11) moves the focus to the first menu entry while the list removes the
+                // focused row during layout. That isn't the user navigating: ignore it, showSection()
+                // puts the focus back on the list. Rebinding the list from here would crash.
+                if (!hasFocus || entry.section == mSection || mListView.isComputingLayout()) {
+                    return;
                 }
+                mMenuView.post(() -> {
+                    if (v.hasFocus() && entry.section != mSection) {
+                        showSection(entry.section);
+                    }
+                });
             });
             view.setOnClickListener(v -> focusFirstItem());
         }
